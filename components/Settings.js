@@ -1,24 +1,44 @@
-import { View, Text, StyleSheet, Switch, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Switch, SafeAreaView, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 
 const Settings = () => {
     const [isEnabled, setIsEnabled] = useState(false);
+    const [customregion, setCustomRegion] = useState('');
+
     const toggleSwitch = async () => {
         setIsEnabled(previousState => !previousState); 
-        console.log('State changed: ' + isEnabled)
-        await AsyncStorage.setItem('uselocation', JSON.stringify(isEnabled));
+        await AsyncStorage.setItem('uselocation', JSON.stringify(isEnabled)).then(() => {console.log('Fysieke locatie: ' + isEnabled)});
+    }
+
+    const selectregion = async (region) => {
+        setCustomRegion(region);
+        await AsyncStorage.setItem('customregion', JSON.stringify(region)).then(() => {console.log('Set new region: ' + region)});
     }
     return(
         <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Settings Page</Text>
             <View style={styles.setting}>
                 <View style={styles.flex}>
                         <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Gebruik fysieke locatie</Text>
-                        <Switch onValueChange={toggleSwitch} value={isEnabled} />
+                        <Switch onValueChange={toggleSwitch} value={isEnabled} thumbColor={(isEnabled === true ? 'lime' : 'red')} />
                 </View>
             </View>
-            <Text>{isEnabled}</Text>
+            <View style={styles.setting}>
+                <View>
+                    <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Aangepaste regio:</Text>
+                    <View style={styles.flex}>
+                        <Button title="Noord" onPress={() => selectregion('Noord')} color={(customregion === 'Noord' ? 'lime' : '')} />
+                        <Button title="Midden" onPress={() => selectregion('Midden')} color={(customregion === 'Midden' ? 'lime' : '')} />
+                        <Button title="Zuid" onPress={() => selectregion('Zuid')} color={(customregion === 'Zuid' ? 'lime' : '')} />
+                    </View>
+                </View>
+            </View>
+            <View style={styles.setting} >
+                    <View>
+                        <Text>Gebruik fysieke locatie: {JSON.stringify(isEnabled)}</Text>
+                        <Text>Aangepaste regio: {customregion}</Text>
+                    </View>
+                </View>
         </SafeAreaView>
     );
 }
@@ -26,23 +46,22 @@ const Settings = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
+    //   backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
-    },
-    title: {
-      fontSize: 25
     },
     setting: {
         width: 350,
         borderWidth: 2,
         borderColor: 'gray',
+        backgroundColor: '#fff',
         alignItems: 'center',
         borderRadius: 10,
+        marginTop: 5
     },
     flex: {
         flexDirection: 'row'
-    }
+    },
   });
 
 

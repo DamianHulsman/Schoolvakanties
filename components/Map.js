@@ -38,8 +38,11 @@ const Map = () => {
     // getGeolocation();
     return (
         <View style={styles.container}>
-            <Button onPress={getGeolocation} title="Getgeolocation" color={'green'}/>
-            <Button onPress={getRegion} title="Get Region" color={'lightgreen'} />
+            <View style={styles.flex}>
+                <Button onPress={getGeolocation} title="Getgeolocation" />
+                <Button onPress={getRegion} title="Get Region" />
+            </View>
+            
             <Text style={styles.title}>Kaart</Text>
             <Text>Latitude: {lat}</Text>
             <Text>Longitude: {lon}</Text>
@@ -74,12 +77,14 @@ const Map = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
     },
     title: {
       fontSize: 25
+    },
+    flex: {
+        flexDirection: 'row',
     }
   });
 

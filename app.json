@@ -3,7 +3,7 @@
     "name": "Schoolvakanties",
     "slug": "Schoolvakanties",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/react-native-logo-48px.png",
     "userInterfaceStyle": "dark",
     "splash": {
