@@ -1,15 +1,16 @@
-import { View, Text, StyleSheet, Button } from 'react-native';
-import { useState } from 'react';
+import { View, Text, StyleSheet, Button, ScrollView, SafeAreaView } from 'react-native';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Map = () => {
     const [lat, setlat] = useState(0.0);
     const [lon, setlon] = useState(0.0);
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
-
+    const [regio, setRegio] = useState();
     const getGeolocation = async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -24,23 +25,29 @@ const Map = () => {
             setCity(response.data[0].name);    
             setState(response.data[0].state);
             console.log(response.data);
+            getRegion();
     }
 
-    const getRegion = () => {
+    const getRegion = async () => {
         if (state === 'Drenthe' || 'Flevoland' || 'Friesland' || 'Groningen' || 'Noord-Holland' || 'Overijssel' && city !== 'Zeewolde') {
-            alert('Regio = Noord');
+            setRegio('Noord');
+            await AsyncStorage.setItem('currentregion', 'noord');
         } else if (state === 'Zuid-Holland' || city === 'Zeewolde') {
-            alert('Regio = Midden');
+            setRegio('Midden');
+            await AsyncStorage.setItem('currentregion', JSON.stringify('midden'));
         } else if (state === 'Limburg' || 'Zeeland') {
-            alert('Regio = Zuid');
+            setRegio('Zuid');
+            await AsyncStorage.setItem('currentregion', JSON.stringify('zuid'));
         }
     }
-    // getGeolocation();
+    useEffect(() => {
+        getGeolocation();
+    }, []);
+    
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.flex}>
                 <Button onPress={getGeolocation} title="Getgeolocation" />
-                <Button onPress={getRegion} title="Get Region" />
             </View>
             
             <Text style={styles.title}>Kaart</Text>
@@ -48,6 +55,7 @@ const Map = () => {
             <Text>Longitude: {lon}</Text>
             <Text>City: {city}</Text>
             <Text>State: {state}</Text>
+            <Text>Regio: {regio}</Text>
             <MapView
             scrollEnabled={false}
             zoomEnabled={false}
@@ -57,20 +65,20 @@ const Map = () => {
             pitchEnabled={false}
             style={{ width: 300, height: 200 }}
                 initialRegion={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}
-                region={{
-                    latitude: lat,
-                    longitude: lon,
-                    latitudeDelta: 0.00922,
-                    longitudeDelta: 0.00421,
-                }}>
+                latitude: 37.78825,
+                longitude: -122.4324,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            }}
+            region={{
+                latitude: lat,
+                longitude: lon,
+                latitudeDelta: 0.00922,
+                longitudeDelta: 0.00421,
+            }}>
                 <Marker coordinate={{ latitude: lat, longitude: lon }} />
             </MapView>
-        </View>
+        </SafeAreaView>
     );
 }
 

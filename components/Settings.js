@@ -3,8 +3,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 
 const Settings = () => {
-    const [isEnabled, setIsEnabled] = useState(false);
-    const [customregion, setCustomRegion] = useState('');
+    var [isEnabled, setIsEnabled] = useState(true);
+    var [customregion, setCustomRegion] = useState('Midden');
+
 
     const toggleSwitch = async () => {
         setIsEnabled(previousState => !previousState); 
@@ -20,10 +21,10 @@ const Settings = () => {
             <View style={styles.setting}>
                 <View style={styles.flex}>
                         <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Gebruik fysieke locatie</Text>
-                        <Switch onValueChange={toggleSwitch} value={isEnabled} thumbColor={(isEnabled === true ? 'lime' : 'red')} />
+                        <Switch onValueChange={toggleSwitch} value={isEnabled} thumbColor={(isEnabled === true ? 'lime' : 'red')} trackColor={(isEnabled === true ? 'lime' : 'red')} />
                 </View>
             </View>
-            <View style={styles.setting}>
+            <View style={[styles.setting, {display: (isEnabled === true ? 'none' : '')}]}>
                 <View>
                     <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Aangepaste regio:</Text>
                     <View style={styles.flex}>
@@ -46,7 +47,6 @@ const Settings = () => {
 const styles = StyleSheet.create({
     container: {
       flex: 1,
-    //   backgroundColor: '#fff',
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -63,6 +63,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row'
     },
   });
-
-
+  
 export default Settings;

@@ -1,34 +1,12 @@
-import * as Location from 'expo-location';
 import axios from 'axios';
 
-const determineRegion = (province, municipality) => {
-    const northProvinces = ['Drenthe', 'Friesland', 'Groningen', 'Noord-Holland', 'Overijssel'];
-    const northMunicipalities = ['Almere', 'Dronten', 'Lelystad', 'Noordoosterpolder', 'Urk', 'Hattem', 'Eemnes', 'Abcoude'];
-
-    const middleProvinces = ['Zuid-Holland'];
-    const middleMunicipalities = ['Aalten', 'Apeldoorn', 'Barneveld', 'Berkelland', 'Bronckhorst', 'Brummen', 'Buren', 'Culemborg', 'Doetinchem', 'Ede', 'Elburg', 'Epe', 'Ermelo', 'Harderwijk', 'Heerde', 'Lochem', 'Montferland', 'Neder-Betuwe', 'Nijkerk', 'Nunspeet', 'Oldebroek', 'Oost-Gelre', 'Oude IJsselstreek', 'Putten', 'Scherpenzeel', 'Tiel', 'Voorst', 'Wageningen', 'West Betuwe', 'Winterswijk', 'Zutphen', 'Altena', 'Zeewolde'];
-
-    const southProvinces = ['Limburg', 'Zeeland'];
-    const southMunicipalities = ['Arnhem', 'Berg en Dal', 'Beuningen', 'Doesburg', 'Druten', 'Duiven', 'Heumen', 'Lingewaard', 'Maasdriel', 'Montferland', 'Nijmegen', 'Overbetuwe', 'Renkum', 'Rheden', 'Rozendaal', 'Rijnwaarden', 'Westervoort', 'West Maas en Waal', 'Wijchen', 'Zaltbommel', 'Zevenaar'];
-
-    if (northProvinces.includes(province) || northMunicipalities.includes(municipality)) {
-      return 'noord';
-    } else if (middleProvinces.includes(province) || middleMunicipalities.includes(municipality)) {
-      return 'midden';
-    } else if (southProvinces.includes(province) || southMunicipalities.includes(municipality)) {
-      return 'zuid';
-    } else {
-      return 'Onbekende regio';
-    }
-  }
-  
   async function fetchSchoolHolidays() {
     try {
       const response = await axios.get('https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/2023-2024?output=json');
-      console.log(response.data);
+      // console.log(response.data);
       return response.data.content[0].vacations;
     } catch (error) {
-      console.error('Fout bij het ophalen van schoolvakantiegegevens:', error);
+      console.error('Fout bij het ophalen van schoolvakantiegegevens: \n\n', error.message);
       return null;
     }
   }
@@ -83,8 +61,9 @@ const determineRegion = (province, municipality) => {
     });
   
     // Return the mapped holidays
+    console.log(mappedHolidays);
     return mappedHolidays;
   }
 
-export { GetLocation, findNextHoliday, reverseGeocode, determineRegion, findAllFutureHolidays};  
+export { findNextHoliday, findAllFutureHolidays, fetchSchoolHolidays };  
   
