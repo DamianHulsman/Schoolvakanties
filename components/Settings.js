@@ -3,8 +3,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 
 const Settings = () => {
-    var [isEnabled, setIsEnabled] = useState(true);
-    var [customregion, setCustomRegion] = useState('Midden');
+    const [isEnabled, setIsEnabled] = useState(true);
+    const [customregion, setCustomRegion] = useState('midden');
 
 
     const toggleSwitch = async () => {
@@ -28,9 +28,9 @@ const Settings = () => {
                 <View>
                     <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Aangepaste regio:</Text>
                     <View style={styles.flex}>
-                        <Button title="Noord" onPress={() => selectregion('Noord')} color={(customregion === 'Noord' ? 'lime' : '')} />
-                        <Button title="Midden" onPress={() => selectregion('Midden')} color={(customregion === 'Midden' ? 'lime' : '')} />
-                        <Button title="Zuid" onPress={() => selectregion('Zuid')} color={(customregion === 'Zuid' ? 'lime' : '')} />
+                        <Button title="Noord" onPress={() => selectregion('noord')} color={(customregion === 'noord' ? 'lime' : '')} />
+                        <Button title="Midden" onPress={() => selectregion('midden')} color={(customregion === 'midden' ? 'lime' : '')} />
+                        <Button title="Zuid" onPress={() => selectregion('zuid')} color={(customregion === 'zuid' ? 'lime' : '')} />
                     </View>
                 </View>
             </View>

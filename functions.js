@@ -1,8 +1,8 @@
 import axios from 'axios';
-
-  async function fetchSchoolHolidays() {
+  // Haal schoolvakanties op
+  async function fetchSchoolHolidays(year) {
     try {
-      const response = await axios.get('https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/2023-2024?output=json');
+      const response = await axios.get(`https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${ parseInt(year) }-${ parseInt(year) + 1}?output=json`);
       // console.log(response.data);
       return response.data.content[0].vacations;
     } catch (error) {
@@ -11,8 +11,9 @@ import axios from 'axios';
     }
   }
 
-  async function findNextHoliday(region) {
-    const schoolHolidaysData = await fetchSchoolHolidays();
+  // Vind de volgende vakantie aan de hand van de regio
+  async function findNextHoliday(year, region) {
+    const schoolHolidaysData = await fetchSchoolHolidays(year);
     if (schoolHolidaysData) {
       const currentDate = new Date();
       const futureHolidays = [];
@@ -38,6 +39,7 @@ import axios from 'axios';
     return null;
   }
 
+  // Vind alle toekomstige vakanties aan de hand van de regio
   async function findAllFutureHolidays(region) {
     // Fetch all holidays
     const allHolidays = await fetchSchoolHolidays();

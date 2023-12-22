@@ -11,6 +11,7 @@ const Map = () => {
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [regio, setRegio] = useState();
+    // Haal locatie op
     const getGeolocation = async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
             if (status !== 'granted') {
@@ -24,10 +25,10 @@ const Map = () => {
             const response = await axios.get(`https://api.openweathermap.org/geo/1.0/reverse?lat=${location.coords.latitude}&lon=${location.coords.longitude}&limit=5&appid=f25e31f2eaa6e1b215ca709bf964d2db`);
             setCity(response.data[0].name);    
             setState(response.data[0].state);
-            console.log(response.data);
             getRegion();
     }
 
+    // Bepaal regio
     const getRegion = async () => {
         if (state === 'Drenthe' || 'Flevoland' || 'Friesland' || 'Groningen' || 'Noord-Holland' || 'Overijssel' && city !== 'Zeewolde') {
             setRegio('Noord');
