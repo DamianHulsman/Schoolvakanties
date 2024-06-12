@@ -1,7 +1,9 @@
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
   // Haal schoolvakanties op
   async function fetchSchoolHolidays(year) {
     try {
+      console.log(`https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${ parseInt(year) }-${ parseInt(year) + 1}?output=json`)
       const response = await axios.get(`https://opendata.rijksoverheid.nl/v1/sources/rijksoverheid/infotypes/schoolholidays/schoolyear/${ parseInt(year) }-${ parseInt(year) + 1}?output=json`);
       // console.log(response.data);
       return response.data.content[0].vacations;
@@ -67,5 +69,28 @@ import axios from 'axios';
     return mappedHolidays;
   }
 
-export { findNextHoliday, findAllFutureHolidays, fetchSchoolHolidays };  
+  async function getCacheData () {
+    console.log('getCacheData');
+    const isEnabledData = await AsyncStorage.getItem('isEnabled');
+    const customregionData = await AsyncStorage.getItem('customregion');
+    console.info('IsEnabledData:');
+    console.info(isEnabledData);
+    console.info('customregionData:');
+    console.info(customregionData);
+    if (isEnabledData != (null || "" || undefined)) {
+        setIsEnabled(isEnabledData);
+    } else {
+        console.error('IsEnabledData is null');
+        setIsEnabled(true);
+    }
+    if (customregionData != (null || "" || undefined)) {
+        setCustomregion(customregionData);
+    } else {
+        console.error('customregionData is null');
+        setCustomregion('noord');
+    }
+
+};
+
+export { findNextHoliday, findAllFutureHolidays, fetchSchoolHolidays, getCacheData };  
   

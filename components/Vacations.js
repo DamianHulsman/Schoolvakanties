@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Button, RefreshControl } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Picker } from '@react-native-picker/picker';
-import { fetchSchoolHolidays, findNextHoliday } from '../functions';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import { fetchSchoolHolidays, findNextHoliday, getCacheData, findAllFutureHolidays } from '../functions';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const Vacations = () => {
     const [mappedHolidays, setMappedHolidays] = useState([]);
@@ -11,22 +11,30 @@ const Vacations = () => {
     const [customregion, setCustomregion] = useState('noord');
     const [nextHoliday, setNextHoliday] = useState({});
     const [selectedYear, setSelectedYear] = useState('2023-2024');
-    const [nextholidayIcon, setNextholidayIcon] = useState('');
+    const [refreshing, setRefreshing] = useState(false);
+
     try {
-
+        // Haal de data op uit de asyncstorage
         useEffect(() => {
-
             // Haal de data op uit de asyncstorage
             const fetchData = async () => {
 
+                // haal data uit cache voor fysieke locatie en custom locatie
                 const isEnabledData = await AsyncStorage.getItem('isEnabled');
                 const customregionData = await AsyncStorage.getItem('customregion');
-                if (isEnabledData !== null) {
+
+                if (isEnabledData !== (null || "" || undefined)) {
                     setIsEnabled(isEnabledData);
+                    if (customregionData !== (null || "" || undefined)) {
+                        setCustomregion(customregionData);
+                    } else {
+                        setCustomregion('noord');
+                    }
+                } else {
+                    setIsEnabled(true);
                 }
-                if (customregionData !== null) {
-                    setCustomregion(customregionData);
-                }
+
+                
 
             };
 
@@ -49,19 +57,6 @@ const Vacations = () => {
                         if (heelNederlandDates) {
                             startDate = heelNederlandDates.startdate;
                             endDate = heelNederlandDates.enddate;
-                            if(holiday.type.trim() === 'Zomervakantie') {
-                                icon = <FontAwesome5 name="sun" size={30} color="black" />;
-                            } else if (holiday.type.trim() === 'Kerstvakantie') {
-                                icon = <FontAwesome5 name="gift" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Meivakantie') {
-                                icon = <FontAwesome5 name="flower" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Herfstvakantie') {
-                                icon = <FontAwesome5 name="leaf" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Voorjaarsvakantie') {
-                                icon = <FontAwesome5 name="leaf" size={30} color="black" />;
-                            } else {
-                                icon = <FontAwesome5 name="calendar" size={30} color="black" />;
-                            }
                         }
                         return {
                             type: holiday.type.trim(),
@@ -71,23 +66,26 @@ const Vacations = () => {
                     }
                     else {
                         const selectedRegion = holiday.regions.find(
-                            (r) => r.region === (isEnabled ? currentRegion : customregion)
+                            (r) => r.region == (isEnabled ? currentRegion : customregion)
                         );
                         if (selectedRegion) {
                             startDate = selectedRegion.startdate;
                             endDate = selectedRegion.enddate;
-                            if(holiday.type.trim() === 'Zomervakantie') {
+                            if (holiday.type.trim() === 'Zomervakantie') {
                                 icon = <FontAwesome5 name="sun" size={30} color="black" />;
                             } else if (holiday.type.trim() === 'Kerstvakantie') {
-                                icon = <FontAwesome5 name="snowman" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Meivakantie') {
-                                icon = <FontAwesome5 name="sun" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Herfstvakantie') {
+                                icon = <FontAwesome5 name="tree" size={30} color="black" />;
+                            } else if (holiday.type.trim() === 'Meivakantie') {
+                                // Assuming no specific icon for Meivakantie
+                                icon = <FontAwesome5 name="flower" size={30} color="black" />; // Placeholder icon
+                            } else if (holiday.type.trim() === 'Herfstvakantie') {
                                 icon = <FontAwesome5 name="leaf" size={30} color="black" />;
-                            } else if(holiday.type.trim() === 'Voorjaarsvakantie') {
-                                icon = <FontAwesome5 name="rose" size={30} color="black" />;
+                            } else if (holiday.type.trim() === 'Voorjaarsvakantie') {
+                                // Assuming Voorjaarsvakantie should have a specific icon, for example, a sprout
+                                icon = <FontAwesome5 name="seedling" size={30} color="black" />;
                             } else {
-                                icon = <FontAwesome5 name="calendar" size={30} color="black" />;
+                                // Default case for any holiday types not explicitly handled
+                                icon = <FontAwesome5 name="calendar" size={30} color="black" />; // Placeholder for generic holiday icon
                             }
 
                             return {
@@ -97,23 +95,23 @@ const Vacations = () => {
                                 endDate: new Date(endDate).toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
                             };
                         }
-                        
+
                     }
                 })
                 let mappedHoliday = [];
 
                 // Map de vakanties naar een view
                 filteredData.map((holiday, index) => {
-                    let hStyle = styles[holiday.type];
+                    let hStyle = styles[(holiday.type ? holiday.type : "Unknown")];
                     mappedHoliday.push(<View key={index} style={[styles.holiday, hStyle]}>
-                        <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>{holiday.type}</Text>
-                        <View key={index} style={{display: 'flex', flexDirection: 'row'}}>
-                            <View style={{flex: 3}}>
+                        <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>{(holiday.type ? holiday.type : "Unknown")}</Text>
+                        <View key={index} style={{ display: 'flex', flexDirection: 'row' }}>
+                            <View style={{ flex: 3 }}>
                                 <Text>Startdatum: {holiday.startDate}</Text>
                                 <Text>Einddatum: {holiday.endDate}</Text>
                             </View>
-                            <View style={{flex: 1}}>
-                                {holiday.icon}
+                            <View style={{ flex: 1 }}>
+                                {(holiday.icon !== (undefined || null || "") ? holiday.icon : null)}
                             </View>
                         </View>
 
@@ -134,27 +132,40 @@ const Vacations = () => {
                 }
             }
 
-
             fetchData();
             getHolidays();
             nextHoliday();
-        }, [selectedYear, customregion, isEnabled]);
+        }, [selectedYear, customregion, isEnabled, refreshing]);
     } catch (err) {
         console.log(err);
     }
+
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+
+        getCacheData();
+
+        setRefreshing(false);
+    }, []);
+
     return (
         <View>
-            <ScrollView>
+            <ScrollView refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                />
+            }>
                 <Picker
                     selectedValue={selectedYear}
-                    onValueChange={(itemValue) => { setSelectedYear(itemValue) }}
+                    onValueChange={(itemValue) => { setSelectedYear(itemValue); }}
                 >
                     <Picker.Item label="2023-2024" value="2023" />
                     <Picker.Item label="2024-2025" value="2024" />
                     <Picker.Item label="2025-2026" value="2025" />
                 </Picker>
                 <View style={styles.nextHolidayView}>
-                    {nextHoliday.icon}
+                    {/* {nextHoliday.icon} */}
                     <Text style={styles.nextHolidayTitle}>Dagen tot volgende vakantie: {nextHoliday.daysUntilNextHoliday}</Text>
                     <Text style={styles.nextHolidaySubTitle}>Volgende vakantie: {nextHoliday.holidayName}</Text>
                     <Text style={styles.nextHolidaySubTitle}>Startdatum: {new Date(nextHoliday.startDate).toLocaleDateString('nl-NL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</Text>
@@ -170,6 +181,9 @@ const styles = StyleSheet.create({
     holiday: {
         margin: 5,
         padding: 5,
+    },
+    Unknownvakantie: {
+        backgroundColor: 'red',
     },
     Kerstvakantie: {
         backgroundColor: 'red',

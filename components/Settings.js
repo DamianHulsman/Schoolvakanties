@@ -3,13 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useState } from 'react';
 
 const Settings = () => {
-    const [isEnabled, setIsEnabled] = useState(true);
+    const [Enabled, setEnabled] = useState(true);
     const [customregion, setCustomRegion] = useState('midden');
 
 
     const toggleSwitch = async () => {
-        setIsEnabled(previousState => !previousState); 
-        await AsyncStorage.setItem('uselocation', JSON.stringify(isEnabled)).then(() => {console.log('Fysieke locatie: ' + isEnabled)});
+        setEnabled((Enabled === true ? false : true)); 
+        await AsyncStorage.setItem('uselocation', JSON.stringify(Enabled)).then(() => {console.log('Fysieke locatie: ' + Enabled)});
     }
 
     const selectregion = async (region) => {
@@ -21,10 +21,10 @@ const Settings = () => {
             <View style={styles.setting}>
                 <View style={styles.flex}>
                         <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Gebruik fysieke locatie</Text>
-                        <Switch onValueChange={toggleSwitch} value={isEnabled} thumbColor={(isEnabled === true ? 'lime' : 'red')} trackColor={(isEnabled === true ? 'lime' : 'red')} />
+                        <Switch onValueChange={toggleSwitch} value={Enabled} thumbColor={(Enabled === true ? 'lime' : 'red')} trackColor={(Enabled === true ? 'lime' : 'red')} />
                 </View>
             </View>
-            <View style={[styles.setting, {display: (isEnabled === true ? 'none' : '')}]}>
+            <View style={[styles.setting, {display: (Enabled === true ? 'none' : '')}]}>
                 <View>
                     <Text style={{ marginTop:'auto', marginBottom:'auto' }}>Aangepaste regio:</Text>
                     <View style={styles.flex}>
@@ -36,7 +36,7 @@ const Settings = () => {
             </View>
             <View style={styles.setting} >
                     <View>
-                        <Text>Gebruik fysieke locatie: {JSON.stringify(isEnabled)}</Text>
+                        <Text>Gebruik fysieke locatie: {JSON.stringify(Enabled)}</Text>
                         <Text>Aangepaste regio: {customregion}</Text>
                     </View>
                 </View>
